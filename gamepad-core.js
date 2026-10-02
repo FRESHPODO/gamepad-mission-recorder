@@ -1,0 +1,4 @@
+'use strict';
+const W=960,H=600,R=11,origin={x:480,y:300},speed=400,deadzone=.12,gapWidth=120;
+const definitions=[{name:'가로 이동',axis:'x',path:[[480,300],[850,300]],description:'원점에서 오른쪽 도착점까지 이동하세요. 도착점 안에서 RT를 눌러 제출합니다.'},{name:'세로 이동',axis:'y',path:[[480,300],[480,70]],description:'원점에서 위쪽 도착점까지 이동하세요. 도착점 안에서 RT를 눌러 제출합니다.'},{name:'지그재그 이동',path:[[480,300],[560,140],[640,440],[720,140],[800,440],[880,140]],description:'번호 순서대로 5개의 도착지를 모두 통과한 후, 마지막 도착점에서 RT를 누르세요.'},{name:'가로축 막대 회피',axis:'x',game:true,description:'좌우로만 움직일 수 있습니다. 위에서 내려오는 막대의 틈을 통과하세요. RT로 시작하며, 10개가 지나가면 자동 완료됩니다.'},{name:'세로축 막대 회피',axis:'y',game:true,description:'위아래로만 움직일 수 있습니다. 오른쪽에서 다가오는 막대의 틈을 통과하세요. RT로 시작하며, 10개가 지나가면 자동 완료됩니다.'}];
+function barPosition(d,b,t){return d.axis==='x'?-22+(t-b.spawnMs)/1000*170:W+22-(t-b.spawnMs)/1000*170}
