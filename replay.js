@@ -2,13 +2,17 @@
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
 let session={version:1,records:[]},replay=null,playing=false,position=0,frameIndex=0,last=performance.now();
 function notice(message){$('notice').textContent=message;}
+function validateOrigin(value){if(value!==undefined&&(!value||!Number.isFinite(value.x)||!Number.isFinite(value.y)))throw Error('스틱 원점 좌표가 올바르지 않습니다.');}
+function replayStick(sample,record){const origin=sample.stickOrigin??record.stickOrigin??{x:0,y:0};return {x:sample.rawX-origin.x,y:sample.rawY-origin.y,origin};}
 function validateSession(data){
   if(data?.version!==1||!Array.isArray(data.records))throw Error('버전 1 기록 JSON을 선택하세요.');
   for(const r of data.records){
+    validateOrigin(r.stickOrigin);
     if(!Number.isInteger(r.mission)||!definitions[r.mission]||!Number.isFinite(r.durationMs)||r.durationMs<0||!Number.isFinite(r.errorRate)||!Array.isArray(r.samples)||!r.samples.length)throw Error('미션 기록 형식이 올바르지 않습니다.');
     if(r.path!==undefined&&(!Array.isArray(r.path)||r.path.length<2||r.path.some(p=>!Array.isArray(p)||p.length!==2||!p.every(Number.isFinite))))throw Error('경로 형식이 올바르지 않습니다.');
     let previous=-1;
     for(const s of r.samples){
+      validateOrigin(s.stickOrigin);
       if(!['t','x','y','rawX','rawY','inputX','inputY'].every(k=>Number.isFinite(s[k]))||s.t<0||s.t<previous||s.t>r.durationMs||!Array.isArray(s.bars)||s.bars.some(b=>!Number.isFinite(b.spawnMs)||!Number.isFinite(b.gap))||(s.rt!==undefined&&(!Number.isFinite(s.rt)||s.rt<0||s.rt>1)))throw Error('입력 표본 형식이 올바르지 않습니다.');
       previous=s.t;
     }
@@ -38,14 +42,14 @@ function render(){
   if(!replay){ctx.clearRect(0,0,W,H);$('status').textContent='기록 대기';return;}
   // Pass the selected frame explicitly so duplicate timestamps remain individually accessible.
   drawMission({replay,position,session,frameIndex});
-  const s=replay.samples[frameIndex],x=Math.max(-1,Math.min(1,s.rawX)),y=Math.max(-1,Math.min(1,s.rawY));
+  const s=replay.samples[frameIndex],stick=replayStick(s,replay),x=Math.max(-1,Math.min(1,stick.x)),y=Math.max(-1,Math.min(1,stick.y));
   $('replayKnob').style.transform=`translate(${x*60}px, ${y*60}px)`;
-  $('rsValue').textContent=`X ${s.rawX.toFixed(2)} / Y ${s.rawY.toFixed(2)}`;
+  $('rsValue').textContent=`X ${stick.x.toFixed(2)} / Y ${stick.y.toFixed(2)}`;
   const rt=s.rt??(s.virtualGamepad?.enabled?s.virtualGamepad.rt:undefined);
   $('rtIndicator').textContent=rt===undefined?'RT · 기록 없음':`RT · ${rt.toFixed(2)}`;
   $('rtIndicator').classList.toggle('pressed',rt!==undefined&&rt>.5);
   const source={virtual:'가상 패드',gamepad:'실제 패드',keyboard:'키보드'}[s.inputSource]??'이전 기록';
-  $('inputDetails').textContent=`${source} · 프레임 ${frameIndex+1} / ${replay.samples.length} · 적용 X ${s.inputX.toFixed(2)} / Y ${s.inputY.toFixed(2)}`;
+  $('inputDetails').textContent=`${source} · 원점 X ${stick.origin.x.toFixed(3)} / Y ${stick.origin.y.toFixed(3)} · 원시 X ${s.rawX.toFixed(3)} / Y ${s.rawY.toFixed(3)} · 프레임 ${frameIndex+1} / ${replay.samples.length} · 적용 X ${s.inputX.toFixed(2)} / Y ${s.inputY.toFixed(2)}`;
   $('status').textContent=playing?'재생 중':'정지';$('seek').value=frameIndex;
   $('time').textContent=`${(position/1000).toFixed(3)} / ${(replay.durationMs/1000).toFixed(3)}초`;
 }
