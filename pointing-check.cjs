@@ -27,5 +27,10 @@ if(summarize(Array.from({length:5},()=>({axisError:0,mtMs:1000,effectiveAmplitud
 run={settings:{device:'mouse',task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],previous:null,started:null,paused:false,practice:true};
 cursor={...ts[0]};select(100);if(run.rows.length!==0)throw Error('initial selection counted');
 cursor={x:0,y:0};select(1100);if(run.rows.length!==1||run.rows[0].hit||run.rows[0].mtMs!==1000||run.index!==14)throw Error('miss not recorded/advanced');
+draw=()=>{};let virtualPress=true;
+window.pointingVirtualPad={read:()=>({x:(ts[0].x-400)/400,y:(ts[0].y-270)/270,pressed:false,press:virtualPress,key:'Space'})};
+run={settings:{device:'virtual',padMode:'position',deadzone:0,speed:500,task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],trajectory:[],previous:null,started:null,paused:false,practice:true};
+frame(10);if(run.started!==10||run.index!==7||run.controller.mapping!=='virtual')throw Error('virtual input not connected to task');
+virtualPress=false;frame(20);if(run.rows.length!==0||run.trajectory.at(-1).x!==cursor.x)throw Error('virtual duplicate press or missing trajectory');
 `,context);
 console.log('PASS: position mapping/time independence/release, velocity integration/release, both deadzones, ring amplitude/order, summary, zero-SD guard, first-hit exclusion, miss advancement/time');

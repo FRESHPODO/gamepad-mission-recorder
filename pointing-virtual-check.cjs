@@ -1,0 +1,21 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+function element(){const handlers={},captures=new Set();return {handlers,style:{},value:'Space',classList:{toggle(){}},setAttribute(){},querySelector:()=>({style:{}}),getBoundingClientRect:()=>({width:176,height:176,left:0,top:0}),addEventListener(name,fn){(handlers[name]??=[]).push(fn);},setPointerCapture(id){captures.add(id);},hasPointerCapture(id){return captures.has(id);},releasePointerCapture(id){captures.delete(id);},emit(name,event={}){for(const fn of handlers[name]||[])fn({button:0,preventDefault(){},target:{closest:()=>false},...event});}};}
+const ids=new Map(['virtualStick','virtualSelect','virtualKey','virtualValue'].map(id=>[id,element()]));
+const win=element(),doc=element();doc.getElementById=id=>ids.get(id);
+const context={window:win,document:doc};vm.createContext(context);vm.runInContext(fs.readFileSync('pointing-virtual-pad.js','utf8'),context);
+const pad=win.pointingVirtualPad,stick=ids.get('virtualStick'),button=ids.get('virtualSelect');pad.setEnabled(true);
+stick.emit('pointerdown',{pointerId:1,clientX:152,clientY:88});
+assert.equal(pad.read().x,1);
+button.emit('pointerdown',{pointerId:2});
+let input=pad.read();assert.equal(input.x,1);assert.equal(input.press,true);assert.equal(input.pressed,true);
+assert.equal(pad.read().press,false);
+button.emit('pointerup',{pointerId:2});assert.equal(pad.read().x,1);assert.equal(pad.read().pressed,false);
+stick.emit('pointercancel',{pointerId:1});assert.equal(pad.read().x,0);
+win.emit('keydown',{code:'Space',repeat:false});assert.equal(pad.read().press,true);
+win.emit('keydown',{code:'Space',repeat:true});assert.equal(pad.read().press,false);
+win.emit('keyup',{code:'Space'});assert.equal(pad.read().pressed,false);
+win.emit('keydown',{code:'Space',repeat:false,target:{closest:()=>true}});assert.equal(pad.read().press,false);
+button.emit('click',{detail:0});assert.equal(pad.read().press,true);
+stick.emit('pointerdown',{pointerId:3,clientX:88,clientY:24});win.emit('blur');assert.equal(pad.read().y,0);
+pad.setEnabled(false);stick.emit('pointerdown',{pointerId:4,clientX:152,clientY:88});assert.equal(pad.read().x,0);
+console.log('PASS: virtual stick, simultaneous touch selection, single press consumption, pointer cancel, keyboard repeat/focus guard, accessible button, blur and disabled input');
