@@ -1,8 +1,9 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();
-const context={console,performance:{now:()=>0},devicePixelRatio:1,ResizeObserver:class{observe(){}},requestAnimationFrame(){},setTimeout(){},navigator:{getGamepads:()=>[]},window:{addEventListener(){}},document:{getElementById(id){if(!elements.has(id))elements.set(id,{value:'',disabled:false,textContent:'',addEventListener(){},getBoundingClientRect:()=>({width:800,height:540}),getContext:()=>({setTransform(){}})});return elements.get(id);},addEventListener(){}}};
+const context={console,performance:{now:()=>0},devicePixelRatio:1,ResizeObserver:class{observe(){}},requestAnimationFrame(){},setTimeout(){},navigator:{getGamepads:()=>[]},window:{addEventListener(){}},document:{body:{classList:{toggle(){}}},getElementById(id){if(!elements.has(id))elements.set(id,{value:'',disabled:false,textContent:'',addEventListener(){},getBoundingClientRect:()=>({width:800,height:540}),getContext:()=>({setTransform(){}})});return elements.get(id);},addEventListener(){}}};
 vm.createContext(context);vm.runInContext(fs.readFileSync('pointing.js','utf8'),context);
 vm.runInContext(`
+for(const [w,h] of [[294,220],[344,267],[404,337]]){const a=fittedAmplitude(w,h,40,'ring'),diameter=a/Math.sin(7*Math.PI/15);if(diameter+40+20>Math.min(w,h)+1e-8||a<100)throw Error('mobile targets overflow');}
 const ts=targets({task:'ring',amplitude:320});
 const base={padMode:'position',deadzone:0,speed:500};
 const absolute=movePad({x:100,y:100},.5,-.5,base,.01,800,540);
