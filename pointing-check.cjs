@@ -25,7 +25,7 @@ if(visited.size!==15)throw Error('target sequence incomplete');
 const result=summarize([-2,-1,0,1,2].map((axisError,i)=>({axisError,mtMs:1000,effectiveAmplitude:320,hit:i!==0})));
 if(result.error!==20||Math.abs(result.we-4.133*Math.sqrt(2.5))>1e-8||!Number.isFinite(result.tp))throw Error('summary mismatch');
 if(summarize(Array.from({length:5},()=>({axisError:0,mtMs:1000,effectiveAmplitude:320,hit:true}))).tp!==null)throw Error('zero SD');
-run={settings:{device:'mouse',task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],previous:null,started:null,paused:false,practice:true};
+run={settings:{device:'mouse',task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],trajectory:[],previous:null,started:null,paused:false,practice:true};
 cursor={...ts[0]};select(100);if(run.rows.length!==0)throw Error('initial selection counted');
 cursor={x:0,y:0};select(1100);if(run.rows.length!==1||run.rows[0].hit||run.rows[0].mtMs!==1000||run.index!==14)throw Error('miss not recorded/advanced');
 draw=()=>{};let virtualPress=true;

@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),A=require('./pointing-analysis-core.js');
+const demo=A.demo(),source={name:'a.json',data:demo};
+let result=A.analyze([source,{name:'duplicate.json',data:demo}]);assert.equal(result.report.duplicates,6);assert.equal(result.conditions.length,3);assert.equal(result.conditions[0].summary.n,12);assert.equal(result.conditions[0].pathN,12);assert(Math.abs(result.regressions[0].fit.a-120)<1e-8);assert(Math.abs(result.regressions[0].fit.b-220)<1e-8);assert(Math.abs(result.regressions[0].fit.r2-1)<1e-8);
+const other=structuredClone(demo);other.sessions.forEach(s=>s.settings.participant='OTHER');assert.equal(A.analyze([source,{name:'b',data:other}]).conditions.length,6);
+const changed=structuredClone(demo);changed.sessions.forEach(s=>s.size.width=900);assert.equal(A.analyze([source,{name:'screen',data:changed}]).conditions.length,6);
+const stopped=structuredClone(demo);stopped.sessions[0].status='stopped';assert.equal(A.analyze([{name:'stopped',data:stopped}]).report.excludedSessions,1);assert.equal(A.analyze([{name:'stopped',data:stopped}],{includeInterrupted:true}).conditions[0].summary.n,12);
+const row={fromX:0,fromY:0,targetX:100,targetY:0,x:100,y:0,amplitude:100,width:20,mtMs:100};
+let p=A.pathMetrics(row,[{t:20,x:50,y:0},{t:40,x:100,y:0},{t:60,x:80,y:0},{t:80,x:100,y:0}],{x:0,y:0});assert.equal(p.tre,1);assert.equal(p.odc,2);assert.equal(p.mdc,0);assert.equal(p.me,0);assert.equal(p.mv,0);assert(p.efficiency<1);
+assert(A.pathMetrics({...row,mtMs:500},[{t:250,x:50,y:0}],{x:0,y:0}).reason.includes('간격'));
+assert.equal(result.conditions[0].pathSummary.mdc,1);
+assert(A.pathMetrics(row,[],{x:0,y:0}).reason);assert(A.pathMetrics(row,[{t:50,x:50,y:0}],null).reason);
+const zero=A.basic(Array.from({length:5},()=>({mtMs:1000,hit:true,axisError:0,lateralError:0,endpointError:0,effectiveAmplitude:100})));assert.equal(zero.tp,null);
+const invalid=structuredClone(demo);invalid.sessions[0].rows[0].mtMs=-1;assert.equal(A.analyze([{name:'bad',data:invalid}]).report.invalidRows,1);
+assert(A.regression([{id:1,mt:100},{id:2,mt:200}]).reason);
+console.log('PASS: multi-file pooling, deduplication, participant/screen separation, interrupted policy, regression, re-entry/direction/path measures, gaps and missing paths, zero SD, validation');

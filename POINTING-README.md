@@ -30,3 +30,13 @@ PC에서는 실험 화면 오른쪽의 별도 패널에 가상패드를 표시�
 자료: [ISO/TS 9241-411:2012](https://www.iso.org/standard/54106.html), Douglas, S. A., Kirkpatrick, A. E., & MacKenzie, I. S. (1999). [Testing pointing device performance and user assessment with the ISO9241, Part 9 standard](https://www.yorku.ca/mack/CHI99b.html). CHI ’99, 215–222; [MacKenzie throughput 계산 문서](https://www.yorku.ca/mack/FittsLawSoftware/doc/Throughput.html).
 
 계산 및 과제 순서 확인: `node pointing-check.cjs`.
+
+## 결과 분석 페이지
+
+`pointing-analysis.html` 또는 포인팅 화면 상단 **결과 분석** 링크를 사용합니다. 여러 포인팅 JSON을 선택하거나 파일을 추가해서 합산할 수 있습니다. 참가자·장치·제어 모드·과제·화면 크기/DPR·컨트롤러·입력 설정·선택 정책·A/W가 같은 시행끼리 모아 MT, ER, SD, We, Ae, TP와 선택 편향을 재계산합니다. 완전히 같은 세션은 중복 제외하며 중단 세션은 기본 제외합니다. 참가자/화면 정보가 누락된 세션은 다른 세션과 자동 합산하지 않습니다.
+
+동선 지표 TRE, MDC, ODC, TAC, MV, ME, MO, 경로 길이와 효율은 시작/종료 선택점 및 중간 표본이 있고 표본 최대 간격이 기준 이내인 시행만 계산합니다. 기본 최대 간격은 100ms로 변경할 수 있으며 방향 전환/교차의 0.5px 임계값과 함께 앱의 분석 기준입니다. 다른 JSON으로 누락된 동선을 복원하지 않습니다. 시행별 경로 지표를 평균하고 유효 시행 수와 제외 사유를 표시합니다. 구버전의 첫 시작 선택점이 없는 시행과 스틱값/화면좌표 혼합 동선은 제외합니다. 새 녹화는 시작/종료 선택점과 좌표 스키마를 저장합니다.
+
+서로 다른 ID가 3개 이상인 경우 동일 참가자/입력/화면 조건의 A/W별 평균 MT를 사용해 비가중 회귀 `MT=a+b×ID`와 R², RMSE를 계산합니다. 그래프 점 하나는 A/W 조건 하나이며 여러 참가자를 한 회귀에 섞지 않습니다. 분석 결과를 조건별 CSV 또는 JSON으로 다운로드할 수 있습니다. **예제 데이터**는 실측이 아닌 합성 데이터이며 누르면 현재 불러온 파일 목록을 예제로 교체합니다. 업로드한 기록은 브라우저 메모리에서만 처리합니다.
+
+분석 검사: `node pointing-analysis-check.cjs`. 지표 근거: [MacKenzie, Kauppinen & Silfverberg (2001), CHI, 9–16](https://www.yorku.ca/mack/CHI01.htm), [Soukoreff & MacKenzie (2004), IJHCS, 61, 751–789](https://www.yorku.ca/mack/ijhcs2004.html).

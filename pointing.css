@@ -12,3 +12,4 @@
 }
 @media(max-width:760px) and (max-height:500px){#arena{height:220px}.virtual-stick{width:96px;height:96px}.virtual-select{min-height:70px}body.virtual-input{padding-bottom:calc(140px + env(safe-area-inset-bottom))}}
 .experiment-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.experiment-actions button{min-height:44px}@media(max-width:760px){.experiment-actions{display:grid;grid-template-columns:1fr 1fr}.experiment-actions #stop{grid-column:1/-1;font-size:12px;min-height:36px}}
+header>.analysis-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}header>.analysis-actions a{white-space:nowrap;font-size:12px}
