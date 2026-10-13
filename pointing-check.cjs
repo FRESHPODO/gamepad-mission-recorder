@@ -9,7 +9,8 @@ const ts=targets({task:'ring',amplitude:320});
 const base={padMode:'position',deadzone:0,speed:500};
 const absolute=movePad({x:100,y:100},.5,-.5,base,.01,800,540);
 const absoluteLater=movePad({x:700,y:400},.5,-.5,base,2,800,540);
-if(absolute.x!==600||absolute.y!==135||absoluteLater.x!==absolute.x||absoluteLater.y!==absolute.y)throw Error('position depends on time/history');
+if(absolute.x!==535||absolute.y!==135||absoluteLater.x!==absolute.x||absoluteLater.y!==absolute.y)throw Error('position depends on time/history');
+const doubled=movePad({x:0,y:0},.5,0,{...base,positionRadiusScale:2},1,800,540);if(doubled.x!==670||doubled.y!==270)throw Error('radius multiplier');const clipped=movePad({x:0,y:0},1,0,{...base,positionRadiusScale:2},1,800,540);if(clipped.x!==800)throw Error('radius clipping');
 const center=movePad(absolute,0,0,base,.1,800,540);
 if(center.x!==400||center.y!==270)throw Error('position release not centered');
 const velocity={...base,padMode:'velocity'};
@@ -30,7 +31,7 @@ run={settings:{device:'mouse',task:'ring',width:40,trials:5},targets:ts,index:0,
 cursor={...ts[0]};select(100);if(run.rows.length!==0)throw Error('initial selection counted');
 cursor={x:0,y:0};select(1100);if(run.rows.length!==1||run.rows[0].hit||run.rows[0].mtMs!==1000||run.index!==14)throw Error('miss not recorded/advanced');
 draw=()=>{};let virtualPress=true;
-window.pointingVirtualPad={read:()=>({x:(ts[0].x-400)/400,y:(ts[0].y-270)/270,pressed:false,press:virtualPress,key:'Space'})};
+window.pointingVirtualPad={read:()=>({x:(ts[0].x-400)/270,y:(ts[0].y-270)/270,pressed:false,press:virtualPress,key:'Space'})};
 run={settings:{device:'virtual',padMode:'position',deadzone:0,speed:500,task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],trajectory:[],previous:null,started:null,paused:false,practice:true};
 frame(10);if(run.started!==10||run.index!==7||run.controller.mapping!=='virtual')throw Error('virtual input not connected to task');
 virtualPress=false;frame(20);if(run.rows.length!==0||run.trajectory.at(-1).x!==cursor.x)throw Error('virtual duplicate press or missing trajectory');

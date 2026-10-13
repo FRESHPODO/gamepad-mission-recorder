@@ -12,4 +12,5 @@ assert(A.pathMetrics(row,[],{x:0,y:0}).reason);assert(A.pathMetrics(row,[{t:50,x
 const zero=A.basic(Array.from({length:5},()=>({mtMs:1000,hit:true,axisError:0,lateralError:0,endpointError:0,effectiveAmplitude:100})));assert.equal(zero.tp,null);
 const invalid=structuredClone(demo);invalid.sessions[0].rows[0].mtMs=-1;assert.equal(A.analyze([{name:'bad',data:invalid}]).report.invalidRows,1);
 assert(A.regression([{id:1,mt:100},{id:2,mt:200}]).reason);
+const position=structuredClone(demo);position.sessions.forEach(s=>{s.settings.device='virtual';s.settings.padMode='position';s.settings.stick='virtual';s.settings.deadzone=.1;s.settings.positionRadiusScale=1;s.settings.positionMapping='circular';});const position2=structuredClone(position);position2.sessions.forEach(s=>s.settings.positionRadiusScale=2);assert.equal(A.analyze([{name:'r1',data:position},{name:'r2',data:position2}]).conditions.length,6);
 console.log('PASS: multi-file pooling, deduplication, participant/screen separation, interrupted policy, regression, re-entry/direction/path measures, gaps and missing paths, zero SD, validation');
