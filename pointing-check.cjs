@@ -4,6 +4,7 @@ const context={console,performance:{now:()=>0},devicePixelRatio:1,ResizeObserver
 vm.createContext(context);vm.runInContext(fs.readFileSync('pointing.js','utf8'),context);
 vm.runInContext(`
 for(const [w,h] of [[294,220],[344,267],[404,337]]){const a=fittedAmplitude(w,h,40,'ring'),diameter=a/Math.sin(7*Math.PI/15);if(diameter+40+20>Math.min(w,h)+1e-8||a<100)throw Error('mobile targets overflow');}
+if(selectionButton({id:'Nintendo Switch 2 Pro Controller'})!==1||selectionButton({id:'057e-2069'})!==1||selectionButton({id:'Xbox Wireless Controller'})!==0)throw Error('selection button mapping');
 const ts=targets({task:'ring',amplitude:320});
 const base={padMode:'position',deadzone:0,speed:500};
 const absolute=movePad({x:100,y:100},.5,-.5,base,.01,800,540);
