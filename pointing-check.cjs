@@ -6,11 +6,12 @@ vm.runInContext(`
 for(const [w,h] of [[294,220],[344,267],[404,337]]){const a=fittedAmplitude(w,h,40,'ring'),diameter=a/Math.sin(7*Math.PI/15);if(diameter+40+20>Math.min(w,h)+1e-8||a<100)throw Error('mobile targets overflow');}
 if(selectionButton({id:'Nintendo Switch 2 Pro Controller'})!==1||selectionButton({id:'057e-2069'})!==1||selectionButton({id:'Xbox Wireless Controller'})!==0)throw Error('selection button mapping');
 const ts=targets({task:'ring',amplitude:320});
-const base={padMode:'position',deadzone:0,speed:500};
+const base={padMode:'position',deadzone:0,speed:500,task:'reciprocal',amplitude:320};
 const absolute=movePad({x:100,y:100},.5,-.5,base,.01,800,540);
 const absoluteLater=movePad({x:700,y:400},.5,-.5,base,2,800,540);
-if(absolute.x!==535||absolute.y!==135||absoluteLater.x!==absolute.x||absoluteLater.y!==absolute.y)throw Error('position depends on time/history');
-const doubled=movePad({x:0,y:0},.5,0,{...base,positionRadiusScale:2},1,800,540);if(doubled.x!==670||doubled.y!==270)throw Error('radius multiplier');const clipped=movePad({x:0,y:0},1,0,{...base,positionRadiusScale:2},1,800,540);if(clipped.x!==800)throw Error('radius clipping');
+if(absolute.x!==480||absolute.y!==190||absoluteLater.x!==absolute.x||absoluteLater.y!==absolute.y)throw Error('position depends on time/history');
+const doubled=movePad({x:0,y:0},.5,0,{...base,positionRadiusScale:2},1,800,540);if(doubled.x!==560||doubled.y!==270)throw Error('radius multiplier');const clipped=movePad({x:0,y:0},1,0,{...base,positionRadiusScale:2,amplitude:440},1,800,540);if(clipped.x!==800)throw Error('radius clipping');
+for(const [w,h] of [[800,540],[1000,600],[320,240]]){const ring={...base,task:'ring',amplitude:180,positionRadiusScale:1},r=placementRadius(ring);for(let i=0;i<15;i++){const theta=-Math.PI/2+i*2*Math.PI/15,p=movePad({x:0,y:0},Math.cos(theta),Math.sin(theta),ring,.01,w,h);if(Math.abs(p.x-(w/2+r*Math.cos(theta)))>1e-8||Math.abs(p.y-(h/2+r*Math.sin(theta)))>1e-8)throw Error('maximum input does not reach target centers');}}
 const center=movePad(absolute,0,0,base,.1,800,540);
 if(center.x!==400||center.y!==270)throw Error('position release not centered');
 const velocity={...base,padMode:'velocity'};
@@ -31,8 +32,8 @@ run={settings:{device:'mouse',task:'ring',width:40,trials:5},targets:ts,index:0,
 cursor={...ts[0]};select(100);if(run.rows.length!==0)throw Error('initial selection counted');
 cursor={x:0,y:0};select(1100);if(run.rows.length!==1||run.rows[0].hit||run.rows[0].mtMs!==1000||run.index!==14)throw Error('miss not recorded/advanced');
 draw=()=>{};let virtualPress=true;
-window.pointingVirtualPad={read:()=>({x:(ts[0].x-400)/270,y:(ts[0].y-270)/270,pressed:false,press:virtualPress,key:'Space'})};
-run={settings:{device:'virtual',padMode:'position',deadzone:0,speed:500,task:'ring',width:40,trials:5},targets:ts,index:0,rows:[],trajectory:[],previous:null,started:null,paused:false,practice:true};
+window.pointingVirtualPad={read:()=>({x:(ts[0].x-400)/placementRadius({task:'ring',amplitude:320}),y:(ts[0].y-270)/placementRadius({task:'ring',amplitude:320}),pressed:false,press:virtualPress,key:'Space'})};
+run={settings:{device:'virtual',padMode:'position',deadzone:0,speed:500,task:'ring',amplitude:320,width:40,trials:5},targets:ts,index:0,rows:[],trajectory:[],previous:null,started:null,paused:false,practice:true};
 frame(10);if(run.started!==10||run.index!==7||run.controller.mapping!=='virtual')throw Error('virtual input not connected to task');
 virtualPress=false;frame(20);if(run.rows.length!==0||run.trajectory.at(-1).x!==cursor.x)throw Error('virtual duplicate press or missing trajectory');
 `,context);
